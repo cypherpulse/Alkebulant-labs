@@ -8,10 +8,10 @@ import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter" },
+  { icon: Twitter, href: "https://x.com/Alkebulantlabs", label: "Twitter" },
   { icon: Github, href: "#", label: "GitHub" },
   { icon: Linkedin, href: "#", label: "LinkedIn" },
-  { icon: Mail, href: "mailto:labs@alkebulant.com", label: "Email" },
+  { icon: Mail, href: "mailto:alkebulantlab@gmail.com", label: "Email" },
 ];
 
 const Contact = () => {
