@@ -1,11 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Star, GitFork, ExternalLink, Github } from "lucide-react";
+import { Star, GitFork, ExternalLink, Github, Search, ChevronDown } from "lucide-react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import PageLayout from "@/components/PageLayout";
 import SectionTitle from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Repository {
   id: number;
@@ -16,72 +23,92 @@ interface Repository {
   language: string;
   languageColor: string;
   topics: string[];
+  githubUrl: string;
 }
 
 const repositories: Repository[] = [
   {
     id: 1,
-    name: "quantum-sim",
-    description: "A lightweight quantum circuit simulator for the browser with WebGL acceleration. Perfect for education and experimentation.",
-    stars: 2340,
-    forks: 189,
-    language: "TypeScript",
-    languageColor: "#3178c6",
-    topics: ["quantum", "simulation", "webgl", "education"],
+    name: "NEUR",
+    description: "NEUR is an ERC20 token designed to reward AI agents and autonomous systems on the Base network. This token implements a controlled supply model where tokens are minted on-demand by the owner only when value is created through agent actions, tasks, or contributions.",
+    stars: 0,
+    forks: 0,
+    language: "Solidity",
+    languageColor: "#AA6746",
+    topics: ["erc20", "ai", "base", "token", "autonomous"],
+    githubUrl: "https://github.com/cypherpulse/Neuron.git",
   },
   {
     id: 2,
-    name: "edge-ml-runtime",
-    description: "Efficient ML runtime for edge devices with WebAssembly and ONNX support. Run models anywhere with minimal footprint.",
-    stars: 1890,
-    forks: 156,
-    language: "Rust",
-    languageColor: "#dea584",
-    topics: ["machine-learning", "webassembly", "edge", "onnx"],
+    name: "CypherBTC",
+    description: "CypherBTC is an educational fungible token smart contract built on the Stacks blockchain using Clarity 4. This project demonstrates the implementation of a custom token called CypherBTC (symbol: cBTC) that adheres to the SIP-010 standard for fungible tokens.",
+    stars: 0,
+    forks: 0,
+    language: "Clarity",
+    languageColor: "#5546FF",
+    topics: ["stacks", "clarity", "sip-010", "fungible-token", "educational"],
+    githubUrl: "https://github.com/cypherpulse/CypherBTC.git",
   },
   {
     id: 3,
-    name: "zk-identity",
-    description: "Zero-knowledge proof library for privacy-preserving identity verification. Built for the modern web.",
-    stars: 1456,
-    forks: 98,
-    language: "Go",
-    languageColor: "#00add8",
-    topics: ["cryptography", "privacy", "identity", "zk-proofs"],
+    name: "dualPay",
+    description: "A decentralized marketplace on the Stacks blockchain enabling secure peer-to-peer trading with multi-currency support (STX & SBTC) through Clarity smart contracts.",
+    stars: 0,
+    forks: 0,
+    language: "Clarity",
+    languageColor: "#5546FF",
+    topics: ["stacks", "marketplace", "p2p", "trading", "multicurrency"],
+    githubUrl: "https://github.com/cypherpulse/dualPay.git",
   },
   {
     id: 4,
-    name: "neural-viz",
-    description: "Interactive neural network visualization toolkit for education and debugging. See your models come to life.",
-    stars: 987,
-    forks: 67,
-    language: "Python",
-    languageColor: "#3572A5",
-    topics: ["visualization", "deep-learning", "education", "pytorch"],
+    name: "POSBasePay",
+    description: "A decentralized point-of-sale (POS) payment system built on the Base blockchain, featuring a secure payment vault contract, WalletConnect QR code generation for customer scanning, real-time payment detection, and a user-friendly merchant interface for instant withdrawals by authorized addresses only.",
+    stars: 0,
+    forks: 0,
+    language: "Solidity",
+    languageColor: "#AA6746",
+    topics: ["pos", "payments", "base", "walletconnect", "merchant"],
+    githubUrl: "https://github.com/cypherpulse/POSBasePay.git",
   },
   {
     id: 5,
-    name: "voice-sdk",
-    description: "Build conversational AI experiences with natural language understanding. Multi-platform, multi-language.",
-    stars: 756,
-    forks: 54,
-    language: "TypeScript",
-    languageColor: "#3178c6",
-    topics: ["voice", "nlu", "sdk", "conversational-ai"],
+    name: "DeFi-Stablecoin-Genesis",
+    description: "DeFi Stablecoin Genesis is a decentralized stablecoin implementation built on the Base blockchain. This project leverages Solidity for smart contract development, OpenZeppelin for secure and audited contract libraries, and Foundry as the development toolkit for testing, deployment, and interaction with Ethereum-compatible blockchains.",
+    stars: 0,
+    forks: 0,
+    language: "Solidity",
+    languageColor: "#AA6746",
+    topics: ["defi", "stablecoin", "base", "openzeppelin", "foundry"],
+    githubUrl: "https://github.com/cypherpulse/DeFi-Stablecoin-Genesis.git",
   },
   {
     id: 6,
-    name: "federated-learn",
-    description: "Privacy-preserving federated learning framework. Train models without centralizing data.",
-    stars: 623,
-    forks: 41,
-    language: "Python",
-    languageColor: "#3572A5",
-    topics: ["federated-learning", "privacy", "distributed", "ml"],
+    name: "BatchPay",
+    description: "A secure, efficient multi-payment system for payroll on the Base network, enabling batch ETH transfers with employee management and a 0.5% fee structure.",
+    stars: 0,
+    forks: 0,
+    language: "Solidity",
+    languageColor: "#AA6746",
+    topics: ["batch", "payments", "payroll", "base", "eth"],
+    githubUrl: "https://github.com/cypherpulse/BatchPay.git",
   },
 ];
 
+const filterCategories = [
+  "All",
+  "Solidity",
+  "Clarity",
+  "Blockchain",
+  "DeFi",
+  "AI",
+  "Payments"
+];
+
 const OpenSource = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("All");
+
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -90,6 +117,38 @@ const OpenSource = () => {
       offset: 50,
     });
   }, []);
+
+  const filteredRepositories = useMemo(() => {
+    return repositories.filter((repo) => {
+      const matchesSearch = repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           repo.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           repo.topics.some(topic => topic.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      let matchesFilter = selectedFilter === "All";
+
+      if (!matchesFilter) {
+        // Define category mappings
+        const categoryMappings: { [key: string]: string[] } = {
+          "Solidity": ["Solidity"],
+          "Clarity": ["Clarity"],
+          "Blockchain": ["stacks", "base", "blockchain", "erc20", "sip-010"],
+          "DeFi": ["defi", "stablecoin", "payments", "batch"],
+          "AI": ["ai", "autonomous"],
+          "Payments": ["payments", "pos", "payroll", "merchant"]
+        };
+
+        const relevantTags = categoryMappings[selectedFilter] || [];
+        matchesFilter = repo.language.toLowerCase().includes(selectedFilter.toLowerCase()) ||
+                       repo.topics.some(topic =>
+                         relevantTags.some(relevantTag =>
+                           topic.toLowerCase().includes(relevantTag.toLowerCase())
+                         )
+                       );
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [searchTerm, selectedFilter]);
 
   return (
     <PageLayout>
@@ -100,26 +159,43 @@ const OpenSource = () => {
             subtitle="Tools and experiments we share with the community. Built with love, maintained with care. Contributions welcome!"
           />
 
-          {/* GitHub CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center mb-12"
-          >
-            <Button
-              variant="outline"
-              size="lg"
-              className="gap-2"
-              asChild
-            >
-              <a href="https://github.com/alkebulant-labs" target="_blank" rel="noopener noreferrer">
-                <Github className="w-5 h-5" />
-                View All on GitHub
-              </a>
-            </Button>
-          </motion.div>
+          {/* Search and Filter Controls */}
+          <div className="mb-16">
+            <div className="flex justify-center items-center gap-4 max-w-2xl mx-auto">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search repositories..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filter Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="min-w-[140px] justify-between">
+                    {selectedFilter}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[140px]">
+                  {filterCategories.map((category) => (
+                    <DropdownMenuItem
+                      key={category}
+                      onClick={() => setSelectedFilter(category)}
+                      className={selectedFilter === category ? "bg-accent" : ""}
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {repositories.map((repo, index) => (
@@ -143,7 +219,7 @@ const OpenSource = () => {
                       </h3>
                     </div>
                     <Button variant="ghost" size="icon" className="rounded-full opacity-0 group-hover:opacity-100 transition-opacity" asChild>
-                      <a href={`https://github.com/alkebulant-labs/${repo.name}`} target="_blank" rel="noopener noreferrer">
+                      <a href={repo.githubUrl} target="_blank" rel="noopener noreferrer">
                         <ExternalLink className="w-4 h-4" />
                       </a>
                     </Button>
