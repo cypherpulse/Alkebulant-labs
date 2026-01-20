@@ -1,11 +1,19 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Search, ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import PageLayout from "@/components/PageLayout";
 import SectionTitle from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SolutionCard {
   id: number;
@@ -14,57 +22,66 @@ interface SolutionCard {
   image: string;
   tags: string[];
   status: "live" | "beta" | "experiment";
+  link: string;
 }
 
 const solutions: SolutionCard[] = [
   {
     id: 1,
-    title: "Neural Interface Dashboard",
-    description: "Real-time monitoring and control system for AI model performance with predictive analytics and automated optimization suggestions.",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
-    tags: ["AI/ML", "Dashboard", "Analytics"],
+    title: "Hermes Bridge",
+    description: "Hermes Bridge is a secure, production ready cross chain bridge enabling seamless USDC transfers between Ethereum and Stacks blockchains. It provides two core functionalities: (1) Bridge USDC from Ethereum to USDCx on Stacks via Circle's trusted xReserve protocol, and (2) Transfer USDCx between Stacks addresses with full custody and control.",
+    image: "https://raw.githubusercontent.com/cypherpulse/Hermes/master/assets/bridge.png",
+    tags: ["Cross-chain", "Bridge", "USDC", "Ethereum", "Stacks"],
     status: "live",
+    link: "https://hermes-sage.vercel.app/",
   },
   {
     id: 2,
-    title: "Quantum Compute Simulator",
-    description: "Browser-based quantum circuit simulator with visual gate manipulation, state analysis, and educational tutorials.",
-    image: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&h=400&fit=crop",
-    tags: ["Quantum", "Simulation", "WebGL"],
-    status: "beta",
+    title: "Z-Agent",
+    description: "Z-Agent empowers degens, traders, and buyers on Zora with cutting-edge AI insights to make smarter decisions. Analyze coins, schedule trades, create tokens, and build winning watchlists with our intelligent platform.",
+    image: "https://www.alkebulant.com/zorahome.png",
+    tags: ["AI", "Trading", "Zora", "Analytics", "Web3"],
+    status: "live",
+    link: "https://z-agent-frontend.vercel.app/",
   },
   {
     id: 3,
-    title: "Decentralized Identity",
-    description: "Self-sovereign identity management using blockchain with zero-knowledge proof integration for privacy-preserving verification.",
-    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=400&fit=crop",
-    tags: ["Web3", "Privacy", "Identity"],
+    title: "BatchPay",
+    description: "BatchPay is a decentralized application (dApp) designed to facilitate efficient batch payments on the Base blockchain network. This project consists of a Solidity smart contract for handling batch payment logic and a frontend interface for user interaction. The smart contract allows users to execute multiple payment transactions in a single blockchain transaction, reducing gas costs and improving efficiency for bulk transfers.",
+    image: "https://github.com/cypherpulse/BatchPay/raw/master/assets/payB.png",
+    tags: ["DeFi", "Payments", "Base", "Batch", "Smart Contracts"],
     status: "live",
+    link: "https://batch-pay.vercel.app/",
   },
   {
     id: 4,
-    title: "Edge ML Platform",
-    description: "Deploy and manage machine learning models at the edge with real-time inference capabilities and automatic model optimization.",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=600&h=400&fit=crop",
-    tags: ["Edge", "ML", "IoT"],
-    status: "experiment",
+    title: "POSBasePay",
+    description: "A decentralized point-of-sale (POS) payment system built on the Base blockchain, featuring a secure payment vault contract, WalletConnect QR code generation for customer scanning, real-time payment detection, and a user-friendly merchant interface for instant withdrawals by authorized addresses only.",
+    image: "https://github.com/cypherpulse/POSBasePay/raw/master/assets/posfrontend.png",
+    tags: ["POS", "Payments", "Base", "WalletConnect", "Merchant"],
+    status: "live",
+    link: "https://basepos.vercel.app/",
   },
   {
     id: 5,
-    title: "Voice AI Assistant SDK",
-    description: "Build conversational AI experiences with our voice-first SDK featuring natural language understanding and multi-language support.",
-    image: "https://images.unsplash.com/photo-1589254065878-42c9da997008?w=600&h=400&fit=crop",
-    tags: ["Voice", "NLU", "SDK"],
-    status: "beta",
+    title: "Couponhub.tech",
+    description: "We're on a mission to break barriers and make education free for all. CouponsHub.Tech starts by giving you verified free courses today and we're building the future where knowledge flows without limits tomorrow.",
+    image: "https://www.alkebulant.com/couponhub.PNG",
+    tags: ["Education", "Free Courses", "Learning", "Accessibility"],
+    status: "live",
+    link: "https://www.couponhub.tech/",
   },
-  {
-    id: 6,
-    title: "Federated Learning Framework",
-    description: "Privacy-preserving machine learning that trains models across decentralized data without exposing raw information.",
-    image: "https://images.unsplash.com/photo-1516110833967-0b5716ca1387?w=600&h=400&fit=crop",
-    tags: ["Privacy", "ML", "Distributed"],
-    status: "experiment",
-  },
+];
+
+const filterCategories = [
+  "All",
+  "AI",
+  "DeFi",
+  "Education",
+  "Cross-chain",
+  "Trading",
+  "Payments",
+  "Web3"
 ];
 
 const statusColors = {
@@ -74,6 +91,9 @@ const statusColors = {
 };
 
 const Solutions = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState("All");
+
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -83,17 +103,87 @@ const Solutions = () => {
     });
   }, []);
 
+  const filteredSolutions = useMemo(() => {
+    return solutions.filter((solution) => {
+      const matchesSearch = solution.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           solution.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           solution.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      let matchesFilter = selectedFilter === "All";
+
+      if (!matchesFilter) {
+        // Define category mappings
+        const categoryMappings: { [key: string]: string[] } = {
+          "AI": ["AI", "Analytics"],
+          "DeFi": ["DeFi", "Payments", "Batch", "Smart Contracts"],
+          "Education": ["Education", "Learning", "Accessibility"],
+          "Cross-chain": ["Cross-chain", "Bridge", "Ethereum", "Stacks", "USDC"],
+          "Trading": ["Trading", "Zora"],
+          "Payments": ["Payments", "POS", "WalletConnect", "Merchant"],
+          "Web3": ["Web3", "Blockchain", "Base", "Zora", "Ethereum", "Stacks"]
+        };
+
+        const relevantTags = categoryMappings[selectedFilter] || [];
+        matchesFilter = solution.tags.some(tag =>
+          relevantTags.some(relevantTag =>
+            tag.toLowerCase().includes(relevantTag.toLowerCase())
+          )
+        );
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [searchTerm, selectedFilter]);
+
   return (
     <PageLayout>
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <SectionTitle
-            title="Live Prototypes & Experiments"
-            subtitle="Exploring the frontiers of technology through hands-on experimentation and rapid prototyping. Each project represents our commitment to pushing boundaries."
+            title="Live Prototypes & Solutions"
+            subtitle="Real-world applications built by Alkebulant Labs, showcasing our expertise in blockchain, AI, DeFi, Agritech, BioTech, and educational technology."
           />
 
+          {/* Search and Filter Controls */}
+          <div className="mb-16">
+            <div className="flex justify-center items-center gap-4 max-w-2xl mx-auto">
+              {/* Search Bar */}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Filter Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="min-w-[140px] justify-between">
+                    {selectedFilter}
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[140px]">
+                  {filterCategories.map((category) => (
+                    <DropdownMenuItem
+                      key={category}
+                      onClick={() => setSelectedFilter(category)}
+                      className={selectedFilter === category ? "bg-accent" : ""}
+                    >
+                      {category}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {solutions.map((solution, index) => (
+            {filteredSolutions.map((solution, index) => (
               <motion.div
                 key={solution.id}
                 initial={{ opacity: 0, y: 40 }}
@@ -142,11 +232,19 @@ const Solutions = () => {
                     </p>
 
                     <Button
+                      asChild
                       variant="outline"
                       className="w-full group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all"
                     >
-                      View Demo
-                      <ExternalLink className="w-4 h-4 ml-2" />
+                      <a
+                        href={solution.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center"
+                      >
+                        View Live Demo
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                      </a>
                     </Button>
                   </div>
                 </div>
