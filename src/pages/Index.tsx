@@ -75,9 +75,9 @@ const Index = () => {
                 >
                   <h4 className="font-bold text-foreground text-xl mb-2">Alkebulant.com</h4>
                   <ul className="space-y-1 text-sm text-muted-foreground">
-                    <li>- Production solutions</li>
-                    <li>- Revenue-focused</li>
-                    <li>- Proven tech stacks</li>
+                    <li>Production solutions</li>
+                    <li>Revenue-focused</li>
+                    <li>Proven tech stacks</li>
                   </ul>
                 </motion.div>
 
@@ -88,9 +88,9 @@ const Index = () => {
                 >
                   <h4 className="font-bold text-foreground text-xl mb-2">Alkebulant Labs</h4>
                   <ul className="space-y-1 text-sm text-foreground/90">
-                    <li>- Frontier prototypes</li>
-                    <li>- Open experiments</li>
-                    <li>- Bleeding-edge tech</li>
+                    <li>Frontier prototypes</li>
+                    <li>Open experiments</li>
+                    <li>Bleeding-edge tech</li>
                   </ul>
                 </motion.div>
               </div>
