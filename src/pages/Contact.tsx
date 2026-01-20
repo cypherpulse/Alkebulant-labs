@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 const socialLinks = [
   { icon: Twitter, href: "https://x.com/Alkebulantlabs", label: "Twitter", handle: "@Alkebulantlabs" },
-  { icon: Github, href: "#", label: "GitHub", handle: "cypherpulse" },
+  { icon: Github, href: "https://github.com/Alkebulant-Labs", label: "GitHub", handle: "Alkebulant-Labs" },
   { icon: Linkedin, href: "#", label: "LinkedIn", handle: "Alkebulant Labs" },
   { icon: Mail, href: "mailto:alkebulantlab@gmail.com", label: "Email", handle: "alkebulantlab@gmail.com" },
 ];
@@ -72,18 +72,6 @@ const Contact = () => {
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Email</p>
-                    <a href="mailto:labs@alkebulant.com" className="text-muted-foreground hover:text-primary transition-colors">
-                      labs@alkebulant.com
-                    </a>
-                  </div>
-                </div>
-
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-5 h-5 text-secondary" />

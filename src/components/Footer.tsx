@@ -18,7 +18,7 @@ const Footer = () => {
             <div>
               <p className="font-semibold text-foreground">Alkebulant Labs</p>
               <p className="text-sm text-muted-foreground">
-                © 2026 Alkebulant Labs – Part of Alkebulant
+                © 2026 Alkebulant Labs
               </p>
             </div>
           </div>
