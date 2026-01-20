@@ -11,7 +11,6 @@ const navLinks = [
   { href: "/blog", label: "Blog" },
   { href: "/open-source", label: "Open Source" },
   { href: "/resources", label: "Resources" },
-  { href: "/team", label: "Team" },
   { href: "/contact", label: "Contact" },
 ];
 
