@@ -78,7 +78,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <p className="font-medium text-foreground">Location</p>
-                    <p className="text-muted-foreground">Remote-first, Global</p>
+                    <p className="text-muted-foreground">Kenya</p>
                   </div>
                 </div>
 
