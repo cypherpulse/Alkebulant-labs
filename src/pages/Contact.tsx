@@ -11,9 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 const socialLinks = [
-  { icon: Twitter, href: "#", label: "Twitter", handle: "@alkebulant_labs" },
-  { icon: Github, href: "#", label: "GitHub", handle: "alkebulant-labs" },
+  { icon: Twitter, href: "https://x.com/Alkebulantlabs", label: "Twitter", handle: "@Alkebulantlabs" },
+  { icon: Github, href: "#", label: "GitHub", handle: "cypherpulse" },
   { icon: Linkedin, href: "#", label: "LinkedIn", handle: "Alkebulant Labs" },
+  { icon: Mail, href: "mailto:alkebulantlab@gmail.com", label: "Email", handle: "alkebulantlab@gmail.com" },
 ];
 
 const Contact = () => {
